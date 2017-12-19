@@ -45,6 +45,7 @@ function set_up_feeds()
  **/
 function gram_price($oz_price)
 {
+    // there are 31.1035g in 1oz
     $gram_price = $oz_price / 31.1035;
     return number_format((float) $gram_price, 2, '.', '');
 }
@@ -69,7 +70,7 @@ function write_feed_to_db($feed_type, $metal_price, $metal_price_diff)
         $meta_data['metal_price_diff'] = $metal_price_diff;
 
         $my_post = array(
-            'post_title' => $feed_type . ' Price - ' . date("D M j G:i:s T Y"),
+            'post_title' => $feed_type . ' Price (&pound;' . $meta_data['metal_price'] . ') - ' . date("D M j G:i:s T Y"),
             'post_status' => 'publish',
             'post_author' => 1,
             'post_type' => 'metal_prices',
@@ -133,10 +134,10 @@ function calculate_metal_price($prices, $metal_type, $include_diff = false)
     $highest = $prices[0]['metal_price'];
     $diff = $prices[0]['metal_price_diff'];
 
-    if (($highest < $price_threshold) || ($highest == 0)) {
+    if ($highest == 0) {
         // tell admins we have issues ith price
-        wp_mail($admin_email, 'Feed Issues', $metal_type . 'is either 0 or below threshold ' . $highest . ' < ' . $price_threshold);
-        write_log("ERROR: Price too low" . $highest . " < " . $price_threshold);
+        wp_mail($admin_email, 'Feed Issues', $metal_type . 'is ' . $highest);
+        write_log("ERROR: Price too low" . $highest);
         write_log("ERROR: Override price with fall back");
         $highest = $price_fallback;
     }
