@@ -126,8 +126,6 @@ function update_prices_based_on_feed()
 			);
 		
 			$recent_prices = wp_get_recent_posts( $args, ARRAY_A );
-		
-		
 			
 			$prices = array();
 			
@@ -136,10 +134,6 @@ function update_prices_based_on_feed()
 				$prices[] = get_post_meta($recent_price['ID'],'_custom_metal_price_options',true);
 			}
 			
-		//	print_r($prices);
-			
-					
-		//	$metal_price = $prices[0]['metal_price']; 
 			$metal_price = calculate_metal_price($prices,$this_metal_type);
 		//	print_r($metal_price);
 
