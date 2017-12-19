@@ -37,6 +37,12 @@ function set_up_feeds()
     write_log("SETUP FEED: End");
 }
 
+/**
+ *
+ * gram_price(ounce_price)
+ * simple function converting ounce to gram and returning a value to 2 decimal places
+ *
+ **/
 function gram_price($oz_price)
 {
     $gram_price = $oz_price / 31.1035;
@@ -92,54 +98,6 @@ function write_feed_to_db($feed_type, $metal_price, $metal_price_diff)
 
 /**
  *
- * Draw down feed from URL
- *
- **/
-// function get_feed($url,$feed_type)
-// {
-//     write_log("GET FEED: START ");
-//     global $post;
-
-//     $args = array(
-//         'timeout'     => 5,
-//         'redirection' => 5,
-//         'httpversion' => '1.0',
-//         'user-agent'  => 'WordPress/4.9'. home_url(),
-//         'blocking'    => true,
-//         'headers'     => array(),
-//         'cookies'     => array(),
-//         'body'        => null,
-//         'compress'    => false,
-//         'decompress'  => true,
-//         'sslverify'   => true,
-//         'stream'      => false,
-//         'filename'    => null
-//     );
-
-//     write_log("GET FEED: Getting Feed " . $url);
-//     $response = wp_remote_get($url,$args);
-
-//     if ( is_array( $response ) ) {
-//           $header = $response['headers']; // array of http header lines
-//         if ($response['response']['code'] == 200) {
-//             // This mean we loaded everything okay
-//                   $metal_price = $response['body']; // use the content
-//             // Store the body
-//             write_log("GET FEED: Successful - ". $metal_price);
-
-//         } else {
-//                 write_log("GET FEED: Failed");
-//                 write_log($response);
-//         }
-//     }
-
-//     write_log("GET FEED: END ");
-//     return $metal_price;
-
-// }
-
-/**
- *
  * Custom function for Usort to bring highest price to the top
  *
  **/
@@ -161,24 +119,6 @@ function calculate_metal_price($prices, $metal_type, $include_diff = false)
     // Sort from high to low
     // remove emmpy or null
     // get average and highest
-    switch ($metal_type) {
-        case 'gold':
-            $price_threshold = cs_get_option("gold_price_threshold");
-            $price_fallback = cs_get_option("gold_price_fallback");
-            break;
-        case 'silver':
-            $price_threshold = cs_get_option("silver_price_threshold");
-            $price_fallback = cs_get_option("silver_price_fallback");
-            break;
-        case 'platinum':
-            $price_threshold = cs_get_option("platinum_price_threshold");
-            $price_fallback = cs_get_option("platinum_price_fallback");
-            break;
-        case 'palladium':
-            $price_threshold = cs_get_option("palladium_price_threshold");
-            $price_fallback = cs_get_option("palladium_price_fallback");
-            break;
-    }
 
     $admin_email = cs_get_option("admin_email");
 
