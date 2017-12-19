@@ -1,6 +1,5 @@
 <?php
 
-
 function set_up_feeds()
 {
 	write_log("SETUP FEED: Start");
@@ -9,48 +8,29 @@ function set_up_feeds()
 	if ($feeds_enabled)
 	{
 
-		$gold_price_feed   		= cs_get_option("gold_price_feed");
-		$gold_diff_price_feed  	= cs_get_option("gold_diff_price_feed");
-		$gold_enabled  			= cs_get_option("gold_enabled");
+		$json_price_feed   = cs_get_option("json_price_feed");
+		$json_feed_enabled = cs_get_option("json_feed_enabled");
 		
-		if (($gold_enabled) && (!empty($gold_price_feed)) && (!empty($gold_diff_price_feed)))
+		if (($json_feed_enabled) && (!empty($json_price_feed)) )
 		{
-			$gold_price = get_feed($gold_price_feed,"Gold");
-			$gold_diff  = get_feed($gold_diff_price_feed,"Gold");
+      write_log('fetching json feed');
+      $content = file_get_contents($json_price_feed);
+      $json = json_decode($content, true);
+
+      $gold_price = gram_price($json['gold_ask_gbp_toz']); 
+			$gold_diff  = $json['gold_change_percent_gbp_toz'];
 			write_feed_to_db("Gold",$gold_price,$gold_diff);
-		}
-		
-		$silver_price_feed   		= cs_get_option("silver_price_feed");
-		$silver_diff_price_feed  	= cs_get_option("silver_diff_price_feed");
-		$silver_enabled  			= cs_get_option("silver_enabled");
-		
-		if (($silver_enabled) && (!empty($silver_price_feed)) && (!empty($silver_diff_price_feed)))
-		{
-			$silver_price = get_feed($silver_price_feed,"Silver");
-			$silver_diff  = get_feed($silver_diff_price_feed,"Silver");
+      		
+			$silver_price = gram_price($json['silver_ask_gbp_toz']); 
+			$silver_diff  = $json['silver_change_percent_gbp_toz'];
 			write_feed_to_db("Silver",$silver_price,$silver_diff);
-		}
-		
-		
-		$platinum_price_feed   		= cs_get_option("platinum_price_feed");
-		$platinum_diff_price_feed  	= cs_get_option("platinum_diff_price_feed");
-		$platinum_enabled  			= cs_get_option("platinum_enabled");
-		
-		if (($platinum_enabled) && (!empty($platinum_price_feed)) && (!empty($platinum_diff_price_feed)))
-		{
-			$platinum_price = get_feed($platinum_price_feed,"Platinum");
-			$platinum_diff  = get_feed($platinum_diff_price_feed,"Platinum");
+
+			$platinum_price = gram_price($json['platinum_ask_gbp_toz']);
+			$platinum_diff  = $json['platinum_change_percent_gbp_toz'];
 			write_feed_to_db("Platinum",$platinum_price,$platinum_diff);
-		}
-		
-		$palladium_price_feed   		= cs_get_option("palladium_price_feed");
-		$palladium_diff_price_feed  	= cs_get_option("palladium_diff_price_feed");
-		$palladium_enabled  			= cs_get_option("palladium_enabled");
-		
-		if (($palladium_enabled) && (!empty($palladium_price_feed)) && (!empty($palladium_diff_price_feed)))
-		{
-			$palladium_price = get_feed($palladium_price_feed,"Palladium");
-			$palladium_diff  = get_feed($palladium_diff_price_feed,"Palladium");
+
+      $palladium_price = gram_price($json['palladium_ask_gbp_toz']);
+			$palladium_diff  = $json['palladium_change_percent_gbp_toz'];;
 			write_feed_to_db("Palladium",$palladium_price,$palladium_diff);
 		}
 		
@@ -59,6 +39,10 @@ function set_up_feeds()
 	write_log("SETUP FEED: End");
 }
 
+function gram_price($oz_price) {
+  $gram_price = $oz_price / 31.1035;
+  return number_format((float)$gram_price, 2, '.', '');
+}
 
 /**
   *
@@ -115,49 +99,49 @@ function write_feed_to_db($feed_type,$metal_price,$metal_price_diff)
  * Draw down feed from URL
  *
  **/
-function get_feed($url,$feed_type)
-{
-	write_log("GET FEED: START ");	
-	global $post;
+// function get_feed($url,$feed_type)
+// {
+// 	write_log("GET FEED: START ");	
+// 	global $post;
 	 
-	$args = array(
-		'timeout'     => 5,
-		'redirection' => 5,
-		'httpversion' => '1.0',
-		'user-agent'  => 'WordPress/4.9'. home_url(),
-		'blocking'    => true,
-		'headers'     => array(),
-		'cookies'     => array(),
-		'body'        => null,
-		'compress'    => false,
-		'decompress'  => true,
-		'sslverify'   => true,
-		'stream'      => false,
-		'filename'    => null
-	); 
+// 	$args = array(
+// 		'timeout'     => 5,
+// 		'redirection' => 5,
+// 		'httpversion' => '1.0',
+// 		'user-agent'  => 'WordPress/4.9'. home_url(),
+// 		'blocking'    => true,
+// 		'headers'     => array(),
+// 		'cookies'     => array(),
+// 		'body'        => null,
+// 		'compress'    => false,
+// 		'decompress'  => true,
+// 		'sslverify'   => true,
+// 		'stream'      => false,
+// 		'filename'    => null
+// 	); 
 
 
-	write_log("GET FEED: Getting Feed " . $url);
-	$response = wp_remote_get($url,$args);
+// 	write_log("GET FEED: Getting Feed " . $url);
+// 	$response = wp_remote_get($url,$args);
 	
-	if ( is_array( $response ) ) {
-  		$header = $response['headers']; // array of http header lines
-		if ($response['response']['code'] == 200) { 
-			// This mean we loaded everything okay
-  				$metal_price = $response['body']; // use the content
-			// Store the body
-			write_log("GET FEED: Successful - ". $metal_price);
+// 	if ( is_array( $response ) ) {
+//   		$header = $response['headers']; // array of http header lines
+// 		if ($response['response']['code'] == 200) { 
+// 			// This mean we loaded everything okay
+//   				$metal_price = $response['body']; // use the content
+// 			// Store the body
+// 			write_log("GET FEED: Successful - ". $metal_price);
 		
-		} else {
-				write_log("GET FEED: Failed");
-				write_log($response);			
-		}
-	}
+// 		} else {
+// 				write_log("GET FEED: Failed");
+// 				write_log($response);			
+// 		}
+// 	}
 
-    write_log("GET FEED: END ");		
-	return $metal_price;
+//     write_log("GET FEED: END ");		
+// 	return $metal_price;
 
-}
+// }
 
 /**
  *
@@ -185,15 +169,15 @@ function calculate_metal_price($prices,$metal_type,$include_diff = false)
 	// get average and highest
 	switch ($metal_type) {
 		case 'gold':
-			$price_threshold   	= cs_get_option("gold_price_threshold");
+			$price_threshold  = cs_get_option("gold_price_threshold");
 			$price_fallback  	= cs_get_option("gold_price_fallback");
 			break;
 		case 'silver':
-			$price_threshold   	= cs_get_option("silver_price_threshold");
+			$price_threshold  = cs_get_option("silver_price_threshold");
 			$price_fallback  	= cs_get_option("silver_price_fallback");
 			break;
 		case 'platinum':
-			$price_threshold   	= cs_get_option("platinum_price_threshold");
+			$price_threshold  = cs_get_option("platinum_price_threshold");
 			$price_fallback  	= cs_get_option("platinum_price_fallback");
 			break;
 		case 'palladium':
