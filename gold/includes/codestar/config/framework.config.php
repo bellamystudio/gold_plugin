@@ -49,7 +49,6 @@ $options[] = array(
                 ),
                 // end: a field
 
-
                 array(
                     'id' => 'json_feed_enabled',
                     'type' => 'switcher',
